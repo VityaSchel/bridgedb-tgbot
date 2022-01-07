@@ -6,7 +6,7 @@ import fs from 'fs'
 export async function sendPhoto(userID, imageBase64) {
   const body = new FormData()
   body.append('chat_id', userID)
-  body.append('photo', Buffer.from(imageBase64, 'base64'), { filename: 'captcha.png' })
+  body.append('photo', Buffer.from(imageBase64, 'base64'), { filename: 'captcha.jpeg' })
   const response = await fetch(`https://api.telegram.org/bot${process.env.TGAPI_TOKEN}/sendPhoto`, {
     method: 'POST',
     body

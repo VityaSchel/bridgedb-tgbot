@@ -28,7 +28,7 @@ export async function requestBridges() {
   const response = await responseRaw.text()
   const root = parse(response)
   try {
-    const captchaImage = root.querySelector('#captcha-box > img').getAttribute('src').split('data:image/png;base64,', 2)[1]
+    const captchaImage = root.querySelector('#captcha-box > img').getAttribute('src').split('data:image/jpeg;base64,', 2)[1]
     const captchaChallengeID = root.querySelector('#captcha_challenge_field').getAttribute('value')
     return { captchaImage, captchaChallengeID }
   } catch(e) {
