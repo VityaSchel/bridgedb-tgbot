@@ -12,15 +12,15 @@ export async function getBridges(captchaID, captchaResponse) {
 
   try {
     const responseRaw = await fetch(bridgesDBAPIURL, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          captcha_challenge_field: captchaID,
-          captcha_response_field: captchaResponse,
-          submit: 'submit'
-        }),
-        method: 'POST',
-        agent: global.proxyAgent,
-        signal
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        captcha_challenge_field: captchaID,
+        captcha_response_field: captchaResponse,
+        submit: 'submit'
+      }),
+      method: 'POST',
+      ...(global.USE_PROXY && { agent: global.proxyAgent }),
+      signal
     })
   } catch(e) {
     if(e?.message === 'The operation was aborted.') throw 'Timeout'
@@ -38,7 +38,7 @@ export async function getBridges(captchaID, captchaResponse) {
 }
 
 export async function requestBridges() {
-  const responseRaw = await fetch(bridgesDBAPIURL, { agent: global.proxyAgent })
+  const responseRaw = await fetch(bridgesDBAPIURL, global.USE_PROXY && { agent: global.proxyAgent })
   const response = await responseRaw.text()
   const root = parse(response)
   try {

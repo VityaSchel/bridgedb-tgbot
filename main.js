@@ -13,6 +13,13 @@ export default async function main() {
   const text = body.message.text
   if(!text) return
   global.isRussianLanguage = body.message.from.language_code === 'ru'
+  const whitelist = [270882543]
+  if(!whitelist.includes(body.message.from.id)) {
+    return await sendText(userID, [
+      'Sorry, this bot is limited to author. You can\'t use it, however you can setup your own: https://github.com/VityaSchel/bridgedb-tgbot',
+      'Извините, но этот бот работает только на автора. Вы не можете его использовать, но можете установить свой: https://github.com/VityaSchel/bridgedb-tgbot'
+    ])
+  }
 
   const userID = body.message.chat.id
   const filePath = `./.db/${userID}`
@@ -34,16 +41,18 @@ export default async function main() {
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
-    await sendText(userID, ['Trying to find proxy, please wait. It may take up to 50 seconds.', 'Идет поиск прокси, пожалуйста подождите. Это может занять до 50 секунд.'])
-    let proxy
-    try {
-      proxy = await getProxy()
-    } catch(e) {
-      await sendText(userID, ['Proxy error. Please try again', 'Ошибка прокси. Пожалуйста, попробуйте еще раз'])
-      throw e
+    let proxy, proxyInfo
+    if(global.USE_PROXY)
+      await sendText(userID, ['Trying to find proxy, please wait. It may take up to 50 seconds.', 'Идет поиск прокси, пожалуйста подождите. Это может занять до 50 секунд.'])
+      try {
+        proxy = await getProxy()
+      } catch(e) {
+        await sendText(userID, ['Proxy error. Please try again', 'Ошибка прокси. Пожалуйста, попробуйте еще раз'])
+        throw e
+      }
+      proxyInfo = `${proxy.protocol}://${proxy.ip}:${proxy.port}`
+      global.proxyAgent = new HttpsProxyAgent(proxyInfo)
     }
-    const proxyInfo = `${proxy.protocol}://${proxy.ip}:${proxy.port}`
-    global.proxyAgent = new HttpsProxyAgent(proxyInfo)
     const { captchaImage, captchaChallengeID } = await requestBridges()
     await fs.writeFile(filePath, JSON.stringify({ captchaID: captchaChallengeID, proxy: proxyInfo }))
     await sendPhoto(userID, captchaImage)

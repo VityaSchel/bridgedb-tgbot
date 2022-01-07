@@ -4,6 +4,8 @@ import fetch from 'node-fetch'
 import fs from 'fs/promises'
 import main from './main.js'
 
+global.USE_PROXY = false
+
 console.log('Content-type:text/plain')
 console.log('')
 console.log('OK')

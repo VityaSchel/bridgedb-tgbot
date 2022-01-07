@@ -14,7 +14,7 @@ export default async function getProxy(i) {
 
   const retryProxy = async () => { return await getProxy((i ?? 1)+1) }
 
-  const proxyTimeout = setTimeout(() => controller.abort(), 12000)
+  const proxyTimeout = setTimeout(() => controller.abort(), 15000)
 
   try {
     const response = await fetch('http://postman-echo.com/get?foo=bar', {
