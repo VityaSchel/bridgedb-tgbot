@@ -13,9 +13,16 @@ export default async function main() {
 
   const userID = body.message.chat.id
   const filePath = `./.db/${userID}`
-  const captchaID = await isItCaptchaSolution(userID)
+  const captchaID = text === '/start' ? false : await isItCaptchaSolution(userID)
   if(captchaID) {
-    const bridges = await getBridges(captchaID, body.message.text)
+    let bridges
+    try {
+      bridges = await getBridges(captchaID, body.message.text)
+    } catch(e) {
+      if(e === 'Error') {
+        return await sendText(userID, 'Incorrect captcha. Try again or use /start\nНеправильный ответ. Попробуйте еще раз или отправьте /start')
+      } else throw e
+    }
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
@@ -33,8 +40,6 @@ async function isItCaptchaSolution(userID) {
   } catch(e) {
     if(e?.code === 'ENOENT') {
       return false
-    } else {
-      throw e
-    }
+    } else throw e
   }
 }
