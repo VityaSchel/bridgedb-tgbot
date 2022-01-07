@@ -12,5 +12,5 @@ try {
   await main()
 } catch(e) {
   const __dirname = new URL('.', import.meta.url).pathname
-  fs.appendFile(`${__dirname}error.log`, e)
+  fs.appendFile(`${__dirname}error.log`, JSON.stringify(e, Object.getOwnPropertyNames(e)))
 }
