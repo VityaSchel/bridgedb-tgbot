@@ -27,7 +27,13 @@ export async function requestBridges() {
   const responseRaw = await fetch(bridgesDBAPIURL)
   const response = await responseRaw.text()
   const root = parse(response)
-  const captchaImage = root.querySelector('#captcha-box > img').src.split('data:image/png;base64,', 2)[1]
-  const captchaChallengeID = document.querySelector('#captcha_challenge_field').value
-  return { captchaImage, captchaChallengeID }
+  try {
+    const captchaImage = root.querySelector('#captcha-box > img').getAttribute('src').split('data:image/png;base64,', 2)[1]
+    const captchaChallengeID = document.querySelector('#captcha_challenge_field').getAttribute('value')
+    return { captchaImage, captchaChallengeID }
+  } catch(e) {
+    if(e === 'Cannot read properties of undefined (reading \'split\')') {
+      throw `Cannot get captcha box. HTTP-Status: ${responseRaw.status}, HTML: ${response}`
+    }
+  }
 }
