@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 import { AbortController } from 'node-abort-controller'
 import HttpsProxyAgent from 'https-proxy-agent'
 
-export async function getProxy(i) {
+export default async function getProxy(i) {
   if(i === 4) throw 'Couldn\'t find a working proxy'
 
   const responseRaw = await fetch('https://public.freeproxyapi.com/api/Proxy/ProxyByType/0/3')
