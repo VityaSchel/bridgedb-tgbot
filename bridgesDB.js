@@ -3,7 +3,7 @@ import { parse } from 'node-html-parser'
 
 const bridgesDBAPIURL = 'https://bridges.torproject.org/bridges?transport=obfs4'
 
-async function getBridges(captchaID, captchaResponse) {
+export async function getBridges(captchaID, captchaResponse) {
   const responseRaw = await fetch(bridgesDBAPIURL, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -23,7 +23,7 @@ async function getBridges(captchaID, captchaResponse) {
   return bridges
 }
 
-async function requestBridges() {
+export async function requestBridges() {
   const responseRaw = await fetch(bridgesDBAPIURL)
   const response = await responseRaw.text()
   const root = parse(response)
