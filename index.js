@@ -8,13 +8,20 @@ console.log('Content-type:text/plain')
 console.log('')
 console.log('OK')
 
-const killTimeout = setTimeout(() => process.exit(0), 60*1000)
+const killTimeout = setTimeout(() => {
+  log('Process terminated after 60 seconds')
+  process.exit(0)
+}, 60*1000)
 
 try {
   await main()
 } catch(e) {
   const __dirname = new URL('.', import.meta.url).pathname
-  fs.appendFile(`${__dirname}error.log`, `${JSON.stringify(e, Object.getOwnPropertyNames(e))}\n`)
+  log(JSON.stringify(e, Object.getOwnPropertyNames(e)))
 } finally {
   clearTimeout(killTimeout)
+}
+
+function log(text) {
+  fs.appendFile(`${__dirname}error.log`, `${text}\n`)
 }
