@@ -2,6 +2,8 @@ import fss from 'fs'
 import fs from 'fs/promises'
 import { sendPhoto, sendText } from './telegramApi.js'
 import { getBridges, requestBridges } from './bridgesDB.js'
+import HttpsProxyAgent from 'https-proxy-agent'
+import fetch from 'node-fetch'
 
 export default async function main() {
   const stdinBuffer = fss.readFileSync(process.stdin.fd)
@@ -13,8 +15,10 @@ export default async function main() {
 
   const userID = body.message.chat.id
   const filePath = `./.db/${userID}`
-  const captchaID = text === '/start' ? false : await isItCaptchaSolution(userID)
-  if(captchaID) {
+  const captcha = text === '/start' ? false : await isItCaptchaSolution(userID)
+  if(captcha) {
+    const { captchaID, proxy } = captcha
+    global.proxyAgent = new HttpsProxyAgent(proxy)
     let bridges
     try {
       bridges = await getBridges(captchaID, body.message.text)
@@ -26,8 +30,11 @@ export default async function main() {
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
+    const proxy = await getProxy()
+    const proxyInfo = `${proxy.protocol}://${proxy.ip}:${proxy.port}`
+    global.proxyAgent = new HttpsProxyAgent(proxyInfo)
     const { captchaImage, captchaChallengeID } = await requestBridges()
-    await fs.writeFile(filePath, captchaChallengeID)
+    await fs.writeFile(filePath, JSON.stringify({ captchaID: captchaChallengeID, proxy: proxyInfo }))
     await sendPhoto(userID, captchaImage)
   }
 }
@@ -35,11 +42,17 @@ export default async function main() {
 async function isItCaptchaSolution(userID) {
   if(!/^\d+$/.test(userID)) throw 'UserID is incorrect'
   try {
-    const captchaID = await fs.readFile(`./.db/${userID}`)
-    return captchaID
+    const captcha = await fs.readFile(`./.db/${userID}`)
+    return JSON.parse(captcha)
   } catch(e) {
     if(e?.code === 'ENOENT') {
       return false
     } else throw e
   }
+}
+
+async function getProxy() {
+  const responseRaw = await fetch('https://public.freeproxyapi.com/api/Proxy/ProxyByType/0/3')
+  const response = await responseRaw.json()
+  return { protocol: 'http', ip: response.host, port: response.port }
 }

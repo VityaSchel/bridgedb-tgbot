@@ -11,7 +11,8 @@ export async function getBridges(captchaID, captchaResponse) {
         captcha_response_field: captchaResponse,
         submit: 'submit'
       }),
-      method: 'POST'
+      method: 'POST',
+      agent: global.proxyAgent
   })
   if(responseRaw.status !== 200) throw 'Error'
 
@@ -24,7 +25,7 @@ export async function getBridges(captchaID, captchaResponse) {
 }
 
 export async function requestBridges() {
-  const responseRaw = await fetch(bridgesDBAPIURL)
+  const responseRaw = await fetch(bridgesDBAPIURL, { agent: global.proxyAgent })
   const response = await responseRaw.text()
   const root = parse(response)
   try {
