@@ -3,7 +3,7 @@ import fs from 'fs/promises'
 import { sendPhoto, sendText } from './telegramApi.js'
 import { getBridges, requestBridges } from './bridgesDB.js'
 import HttpsProxyAgent from 'https-proxy-agent'
-import fetch from 'node-fetch'
+import getProxy from './proxy.js'
 
 export default async function main() {
   const stdinBuffer = fss.readFileSync(process.stdin.fd)
@@ -49,10 +49,4 @@ async function isItCaptchaSolution(userID) {
       return false
     } else throw e
   }
-}
-
-async function getProxy() {
-  const responseRaw = await fetch('https://public.freeproxyapi.com/api/Proxy/ProxyByType/0/3')
-  const response = await responseRaw.json()
-  return { protocol: 'http', ip: response.host, port: response.port }
 }
