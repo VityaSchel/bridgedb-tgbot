@@ -16,12 +16,12 @@ export default async function main() {
   const captchaID = await isItCaptchaSolution(userID)
   if(captchaID) {
     const bridges = await getBridges(captchaID, body.message.text)
-    fs.unlink(filePath)
-    sendText(userID, bridges)
+    await fs.unlink(filePath)
+    await sendText(userID, bridges)
   } else {
     const { captchaImage, captchaChallengeID } = await requestBridges()
-    fs.writeFile(filePath, captchaChallengeID)
-    sendPhoto(userID, captchaImage)
+    await fs.writeFile(filePath, captchaChallengeID)
+    await sendPhoto(userID, captchaImage)
   }
 }
 
