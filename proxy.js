@@ -1,5 +1,6 @@
 import fetch from 'node-fetch'
-import { AbortController } from "node-abort-controller"
+import { AbortController } from 'node-abort-controller'
+import HttpsProxyAgent from 'https-proxy-agent'
 
 export async function getProxy(i) {
   if(i === 4) throw 'Couldn\'t find a working proxy'
@@ -11,16 +12,13 @@ export async function getProxy(i) {
   const controller = new AbortController()
   const signal = controller.signal
 
-  const retryProxy = async () => {
-    controller.abort()
-    return await getProxy(i+1)
-  }
+  const retryProxy = async () => { return await getProxy((i ?? 1)+1) }
 
-  const proxyTimeout = setTimeout(() => await retryProxy(), 7000)
+  const proxyTimeout = setTimeout(() => controller.abort(), 12000)
 
   try {
-    const response = await fetch('https://postman-echo.com/get?foo=bar', {
-      signal, agent: new HttpsProxyAgent(`http://${proxyResponse.ip}:${proxyResponse.port}`)
+    const response = await fetch('http://postman-echo.com/get?foo=bar', {
+      signal, agent: new HttpsProxyAgent(`http://${proxyResponse.host}:${proxyResponse.port}`)
     })
     response.status === 200 && clearTimeout(proxyTimeout)
   } catch(e) {

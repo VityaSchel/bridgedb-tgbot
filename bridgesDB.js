@@ -1,20 +1,33 @@
 import fetch from 'node-fetch'
 import { parse } from 'node-html-parser'
+import { AbortController } from 'node-abort-controller'
 
 const bridgesDBAPIURL = 'https://bridges.torproject.org/bridges?transport=obfs4'
 
 export async function getBridges(captchaID, captchaResponse) {
-  const responseRaw = await fetch(bridgesDBAPIURL, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        captcha_challenge_field: captchaID,
-        captcha_response_field: captchaResponse,
-        submit: 'submit'
-      }),
-      method: 'POST',
-      agent: global.proxyAgent
-  })
+  const controller = new AbortController()
+  const signal = controller.signal
+
+  const proxyTimeout = setTimeout(() => controller.abort(), 15000)
+
+  try {
+    const responseRaw = await fetch(bridgesDBAPIURL, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          captcha_challenge_field: captchaID,
+          captcha_response_field: captchaResponse,
+          submit: 'submit'
+        }),
+        method: 'POST',
+        agent: global.proxyAgent,
+        signal
+    })
+  } catch(e) {
+    if(e?.message?.includes('AbortError')) throw 'Timeout'
+    else throw e
+  }
   if(responseRaw.status !== 200) throw 'Error'
+  clearTimeout(proxyTimeout)
 
   const response = await responseRaw.text()
   const root = parse(response)

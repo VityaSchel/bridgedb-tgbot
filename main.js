@@ -25,12 +25,20 @@ export default async function main() {
     } catch(e) {
       if(e === 'Error') {
         return await sendText(userID, 'Incorrect captcha. Try again or use /start\nНеправильный ответ. Попробуйте еще раз или отправьте /start')
-      } else throw e
+      } else if(e === 'Timeout') {
+        return await sendText(userID, 'Proxy error. Please try one more time and then reload captcha with /start\nОшибка прокси. Пожалуйста, попробуйте второй раз и затем перезагрузите капчу через /start')
+      } throw e
     }
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
-    const proxy = await getProxy()
+    let proxy
+    try {
+      proxy = await getProxy()
+    } catch(e) {
+      await sendText(userID, 'Proxy error. Please try again\nОшибка прокси. Пожалуйста, попробуйте еще раз')
+      throw e
+    }
     const proxyInfo = `${proxy.protocol}://${proxy.ip}:${proxy.port}`
     global.proxyAgent = new HttpsProxyAgent(proxyInfo)
     const { captchaImage, captchaChallengeID } = await requestBridges()
