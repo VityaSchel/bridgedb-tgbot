@@ -23,7 +23,7 @@ export async function getBridges(captchaID, captchaResponse) {
         signal
     })
   } catch(e) {
-    if(e?.message?.includes('AbortError')) throw 'Timeout'
+    if(e?.message === 'The operation was aborted.') throw 'Timeout'
     else throw e
   }
   if(responseRaw.status !== 200) throw 'Error'
