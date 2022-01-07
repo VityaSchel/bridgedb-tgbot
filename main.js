@@ -17,6 +17,7 @@ export default async function main() {
   const filePath = `./.db/${userID}`
   const captcha = text === '/start' ? false : await isItCaptchaSolution(userID)
   if(captcha) {
+    await sendText(userID, 'Checking captcha, please wait.\nПроверка капчи, пожалуйста подождите.')
     const { captchaID, proxy } = captcha
     global.proxyAgent = new HttpsProxyAgent(proxy)
     let bridges
@@ -32,6 +33,7 @@ export default async function main() {
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
+    await sendText(userID, 'Trying to find proxy, please wait.\nИдет поиск прокси, пожалуйста подождите.')
     let proxy
     try {
       proxy = await getProxy()
