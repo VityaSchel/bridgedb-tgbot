@@ -11,3 +11,5 @@ Uses node-fetch, ~LevelDB~ custom file-based db, and Telegram API through http r
 Has Russian language in it.
 
 I won't leave a link for the deployed version here because I will probably get spammed with requests and then banned from BridgeDB. You can ask me at Telegram though: [@hlothdev](https://t.me/hlothdev)
+
+**Update: I'm fucking genius, bridges are always the same for single IP so I just made exact copy of @getbridgesbot but with captcha** ![image](https://user-images.githubusercontent.com/59040542/148551531-2320f9c2-af77-40e8-a575-e798adf26081.png)
