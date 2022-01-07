@@ -19,7 +19,12 @@ export async function sendText(userID, text) {
     method: 'POST',
     body: new URLSearchParams({
       chat_id: userID,
-      text
+      text: Array.isArray(text)
+        ? (
+          global.isRussianLanguage
+            ? text[1]
+            : text[0]
+        ) : text
     })
   })
   if(response.status !== 200) throw 'Text sending was unsuccessfull'

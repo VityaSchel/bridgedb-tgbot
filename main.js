@@ -12,12 +12,13 @@ export default async function main() {
   if(body.message.chat.type !== 'private') return
   const text = body.message.text
   if(!text) return
+  global.isRussianLanguage = body.message.from.language_code === 'ru'
 
   const userID = body.message.chat.id
   const filePath = `./.db/${userID}`
   const captcha = text === '/start' ? false : await isItCaptchaSolution(userID)
   if(captcha) {
-    await sendText(userID, 'Checking captcha, please wait.\nПроверка капчи, пожалуйста подождите.')
+    await sendText(userID, ['Checking captcha, please wait.', 'Проверка капчи, пожалуйста подождите.'])
     const { captchaID, proxy } = captcha
     global.proxyAgent = new HttpsProxyAgent(proxy)
     let bridges
@@ -25,20 +26,20 @@ export default async function main() {
       bridges = await getBridges(captchaID, body.message.text)
     } catch(e) {
       if(e === 'Error') {
-        return await sendText(userID, 'Incorrect captcha. Try again or use /start\nНеправильный ответ. Попробуйте еще раз или отправьте /start')
+        return await sendText(userID, ['Incorrect captcha. Try again or use /start', 'Неправильный ответ. Попробуйте еще раз или отправьте /start'])
       } else if(e === 'Timeout') {
-        return await sendText(userID, 'Proxy error. Please try one more time and then reload captcha with /start\nОшибка прокси. Пожалуйста, попробуйте второй раз и затем перезагрузите капчу через /start')
+        return await sendText(userID, ['Proxy error. Please try one more time and then reload captcha with /start', 'Ошибка прокси. Пожалуйста, попробуйте второй раз и затем перезагрузите капчу через /start'])
       } throw e
     }
     await fs.unlink(filePath)
     await sendText(userID, bridges)
   } else {
-    await sendText(userID, 'Trying to find proxy, please wait.\nИдет поиск прокси, пожалуйста подождите.')
+    await sendText(userID, ['Trying to find proxy, please wait. It may take up to 50 seconds.', 'Идет поиск прокси, пожалуйста подождите. Это может занять до 50 секунд.'])
     let proxy
     try {
       proxy = await getProxy()
     } catch(e) {
-      await sendText(userID, 'Proxy error. Please try again\nОшибка прокси. Пожалуйста, попробуйте еще раз')
+      await sendText(userID, ['Proxy error. Please try again', 'Ошибка прокси. Пожалуйста, попробуйте еще раз'])
       throw e
     }
     const proxyInfo = `${proxy.protocol}://${proxy.ip}:${proxy.port}`
