@@ -32,8 +32,10 @@ export async function requestBridges() {
     const captchaChallengeID = document.querySelector('#captcha_challenge_field').getAttribute('value')
     return { captchaImage, captchaChallengeID }
   } catch(e) {
-    if(e === 'Cannot read properties of undefined (reading \'split\')') {
+    if(e?.message === 'Cannot read properties of undefined (reading \'split\')') {
       throw `Cannot get captcha box. HTTP-Status: ${responseRaw.status}, HTML: ${response}`
+    } else {
+      throw e
     }
   }
 }
