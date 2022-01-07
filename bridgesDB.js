@@ -29,7 +29,7 @@ export async function requestBridges() {
   const root = parse(response)
   try {
     const captchaImage = root.querySelector('#captcha-box > img').getAttribute('src').split('data:image/png;base64,', 2)[1]
-    const captchaChallengeID = document.querySelector('#captcha_challenge_field').getAttribute('value')
+    const captchaChallengeID = root.querySelector('#captcha_challenge_field').getAttribute('value')
     return { captchaImage, captchaChallengeID }
   } catch(e) {
     if(e?.message === 'Cannot read properties of undefined (reading \'split\')') {
